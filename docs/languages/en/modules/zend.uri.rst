@@ -8,7 +8,7 @@ and manipulating `Uniform Resource Identifiers`_ (URIs) [#]_. While originally
 created to service other components, such as ``Zend\Http\``, ``Zend\Uri`` 
 is also quite useful as a standalone component. 
 
-``Zend\Uri`` was designed to follow the **Generic URI Syntax**. This means
+``Zend\Uri`` was designed to follow the `Generic URI Syntax`_ standard. This means
 it generically supports URIs of any scheme (and not just specific shcemes such 
 as `http` or `file`); In addition, both absolute URIs and relative URIs are 
 supported, for URI schemes where such a distinctions exist. 
@@ -168,20 +168,19 @@ A URI is composed of 8 designated parts, all of which except for the path are
 optional: `scheme`, `user info`, `host`, `port`, `path`, `query` and `fragment`.
 These parts are composed as a single URI in the following manner:
 
-.. code-block::
-   scheme://user-info@host:port/path?query#fragment
+   ``scheme://user-info@host:port/path?query#fragment``
 
 For example, in the URI :
-.. code-block::
-   http://billy:pilgrim@www.example.com:8080/path/to/file.ext?q=foo&b=baz#somefragment
 
-- The scheme is `http`
-- The user information is `billy:pilgrim`
-- The host is `www.example.com`
-- The port is `8080`
-- The path is `/path/to/file.ext`
-- The query is `q=foo&b=baz`
-- The fragment is `somefragment`
+   ``http://billy:pilgrim@www.example.com:8080/path/to/file.ext?q=foo&b=baz#somefragment``
+
+- The scheme is ``http``
+- The user information is ``billy:pilgrim``
+- The host is ``www.example.com``
+- The port is ``8080``
+- The path is ``/path/to/file.ext``
+- The query is ``q=foo&b=baz``
+- The fragment is ``somefragment``
 
 ``Zend\Uri\Uri`` offers fluent API for manipulating and accessing each one of 
 the parts without affecting the entire URI. 
@@ -192,20 +191,20 @@ Accessing URI Parts
 ^^^^^^^^^^^^^^^^^^^
 The following accessor methods are provided:
 
-- `Uri->getScheme();`   // Get the scheme of the URI
-- `Uri->getUserinfo();` // Get the user information part of the URI
-- `Uri->getHost();`     // Get the host part of the URI
-- `Uri->getPort();`     // Get the port part of the URI
-- `Uri->getPath();`     // Get the path of the URI
-- `Uri->getQuery();`    // Get the query part of the URI as a single string
-- `Uri->getFragment();` // Get the fragment part of the URI
+- ``Uri->getScheme();``   - Get the scheme of the URI
+- ``Uri->getUserinfo();`` - Get the user information part of the URI
+- ``Uri->getHost();``     - Get the host part of the URI
+- ``Uri->getPort();``     - Get the port part of the URI
+- ``Uri->getPath();``     - Get the path of the URI
+- ``Uri->getQuery();``    - Get the query part of the URI as a single string
+- ``Uri->getFragment();`` - Get the fragment part of the URI
 
 Each method may return `null` if the requested part is not defined. 
 
 (CODE SAMPLE) 
 
 In addition, you can get the query part of the URI split into key/value pairs 
-(as is common, for example, in HTTP URI queries), using the `Uri->getQueryAsArray()` 
+(as is common, for example, in HTTP URI queries), using the ``Uri->getQueryAsArray()`` 
 method: 
 
 (CODE SAMPLE)
@@ -216,13 +215,13 @@ Modifying URI Parts
 ^^^^^^^^^^^^^^^^^^^
 The following mutator methods are provided: 
 
-- `Uri->setScheme();`   // Set the scheme of the URI
-- `Uri->setUserinfo();` // Set the user information part of the URI
-- `Uri->setHost();`     // Set the host part of the URI
-- `Uri->setPort();`     // Set the port part of the URI
-- `Uri->setPath();`     // Set the path of the URI
-- `Uri->setQuery();`    // Set the query part of the URI as a single string
-- `Uri->setFragment();` // Set the fragment part of the URI
+- ``Uri->setScheme();``   - Set the scheme of the URI
+- ``Uri->setUserinfo();`` - Set the user information part of the URI
+- ``Uri->setHost();``     - Set the host part of the URI
+- ``Uri->setPort();``     - Set the port part of the URI
+- ``Uri->setPath();``     - Set the path of the URI
+- ``Uri->setQuery();``    - Set the query part of the URI as a single string
+- ``Uri->setFragment();`` - Set the fragment part of the URI
 
 All accessor functions return the URI object being manipulated, thus providing 
 a fluent interface (AKA method chaining). For each of these functions, you may 
@@ -230,8 +229,8 @@ pass `null` as a value, effectively unsetting the URI part.
 
 (CODE SAMPLE) 
 
-In addition, the setQuery() method will accept an associative array - in which 
-case it will compose the query out of the key => value pairs in the array:
+In addition, the ``setQuery()`` method will accept an associative array - in 
+which case it will compose the query out of the key => value pairs in the array:
 
 (CODE SAMPLE) 
 
@@ -239,13 +238,13 @@ case it will compose the query out of the key => value pairs in the array:
 
 A Note on URI Encoding
 ^^^^^^^^^^^^^^^^^^^^^^^
-Zend\Uri\Uri attempts to be as permissive as possible in the input it accepts. 
+``Zend\Uri\Uri`` attempts to be as permissive as possible in the input it accepts. 
 When composing URI objects back into a string, it will make sure all parts that 
 cannot be represented in their original form are properly encoded based on the
 rules of the Generic URI Syntax. 
 
-To avoid ambiguity, spaces in paths, queries and fragments are encoded as '%20' 
-and not as a '+' symbol which is ambiguous and who's usage to represent the 
+To avoid ambiguity, spaces in paths, queries and fragments are encoded as `'%20'`
+and not as a `'+'` symbol which is ambiguous and who's usage to represent the 
 space character is deprecated.  
 
 (CODE SAMPLE)
@@ -279,20 +278,109 @@ object is still valid.
 
 URI Normalization
 -----------------
+It is possible to have two URIs which are logically identical (i.e. point to the
+same resource), but have slightly different string representation. For example,
+these two URIs are semantically identical: 
 
+    ``https://www.example.com:443/a/b/file?query=%5B%61%62%5d#``
+	``HTTPS://www.example.com/a/c/../b/file?query=%5bab%5d``
+
+If the two URIs are converted into strings and compared, they will not be equal,
+despite their identical meaning. 
+
+For this reason, ``Zend\Uri\Uri`` provides the ``normalize()`` method, which
+normalizes a URI based on the normalization rules defined in RFC-3986. This 
+includes fixing case for scheme and other parts, decoding URI-encoded characters
+which need not be encoded, removing any dot segments from paths, etc. 
+
+The following example shows the process of normalizing and comparing the two
+URIs above: 
+
+.. _zend.uri.normalization.example-1: 
+
+(CODE SAMPLE)
+
+It is highly recomended to always normalize URIs before comparing them or storing
+them in a form where they might be compared in the future. 
 
 .. _zend.uri.resolution:
 
-Resolving Relative URIs 
------------------------
+Working with Absolute and Relative URIs
+---------------------------------------
+As noted, ``Zend\Uri\Uri`` is capable of representing both (full) absolute and 
+relative URIs. In addition, it provides some useful capabilities for resolving
+relative URIs into absolute ones, as well as "relativizing" absolute URIs into
+relative ones by removing common parts from them. 
 
+You can always check if a URI is relative or absolute using the ``isAbsolute()``
+method: 
+
+.. _zend.uri.resolution.example-1:
+
+(CODE SAMPLE)
+
+.. _zend.uri.resolution.relativeuris:
+
+Resolving Relative URIs
+^^^^^^^^^^^^^^^^^^^^^^^
+In many cases, we need to resolve relative URIs to their absolute form. 
+For example, before fetching all Web pages linked from an HTML page using an 
+HTTP client, it may be required to first resolve all links relative to that page
+into absolute URIs that can be used by the HTTP client. 
+
+This can be done using the ``resolve()`` method of ``Zend\Uri\Uri``. This method
+takes a base URI as an argument (either as a string or a ``Zend\Uri\Uri`` object) 
+and will use that base URI to resolve a relative URI:
+
+.. _zend.uri.resolution.relativeuris.example-1:
+
+(CODE SAMPLE)
+
+It is important to mention that ``resolve()`` will not always leave you with an
+absolute URI as a result: it is possible to "merge" two relative URIs and still
+get a relative URI in result:
+
+.. _zend.uri.resolution.relativeuris.example-2:
+
+(CODE SAMPLE)
+
+.. note:: 
+
+  The ``resolve()`` method has no effect on absolute URIs. You can safely use
+  this method on a URI without knowning whether it is absolute or relative. If
+  the URI is absolute, it will not be changed. 
+
+.. _zend.uri.resolution.absolutetorelative:
+
+
+Converting Absolute URIs to Relative URIs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+It is possible, albeit less frequently required, to "strip" some parts of
+a URI in order to make it relative to a base URI using the ``makeRelative()`` 
+method:
+
+.. _zend.uri.resolution.absolutetorelative.example-1:
+
+(CODE SAMPLE)
 
 .. _zend.uri.helpermethods:
 
 Useful URI-related Static Helper Methods
 ----------------------------------------
 
+Merging Two URIs
+^^^^^^^^^^^^^^^^
+
+Validating URI Parts
+^^^^^^^^^^^^^^^^^^^^
+
+Encoding URI Parts
+^^^^^^^^^^^^^^^^^^
+
+Normalizing Path Segments
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 .. _`Uniform Resource Identifiers`: http://www.w3.org/Addressing/
 
-.. [#] See http://www.ietf.org/rfc/rfc3986.txt for more information on URIs
+.. _`Generic URI Syntax`: http://www.ietf.org/rfc/rfc3986.txt
