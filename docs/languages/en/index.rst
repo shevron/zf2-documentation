@@ -187,6 +187,8 @@
    modules/zend.text.figlet
    modules/zend.text.table
    modules/zend.uri
+   modules/zend.uri.subclasses
+   modules/zend.uri.factory
    modules/zend.validator
    modules/zend.validator.set
    modules/zend.validator.validator-chains
@@ -634,6 +636,8 @@ Zend\\Uri
 ^^^^^^^^^
 
         * :doc:`modules/zend.uri`
+        * :doc:`modules/zend.uri.subclasses`
+        * :doc:`modules/zend.uri.factory`
 
 .. _zend.validator:
 
